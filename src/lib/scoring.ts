@@ -39,6 +39,7 @@ export function calcAllPts(
 
   for (const id of matchIds) {
     const res = results[id];
+    if (!res) continue;
     const resOut = outcome(res.home, res.away);
     if (!resOut) continue;
 
@@ -93,6 +94,7 @@ export function getStreakAt(
   for (const id of matchIds) {
     const res = results[id];
     const bet = playerBets[id];
+    if (!res) continue;
     const resOut = outcome(res.home, res.away);
 
     if (!resOut) continue;
