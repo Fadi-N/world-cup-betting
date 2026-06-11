@@ -52,9 +52,9 @@ export function MatchCard({ match, result, players }: Props) {
         </div>
 
         <div className={styles.scoreBlock}>
-          <span className={styles.scoreDisplay}>{result?.home ?? '–'}</span>
+          <span className={styles.scoreDisplay}>{result?.home || '–'}</span>
           <span className={styles.scoreSep}>:</span>
-          <span className={styles.scoreDisplay}>{result?.away ?? '–'}</span>
+          <span className={styles.scoreDisplay}>{result?.away || '–'}</span>
         </div>
 
         <div className={`${styles.team} ${styles.teamAway}`}>
