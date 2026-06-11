@@ -35,13 +35,6 @@ export function PlayersTab() {
           {state.players.map(p => (
             <div key={p} className={styles.tag}>
               <span>👤 {p}</span>
-              <button
-                title={`Usuń ${p}`}
-                onClick={() => dispatch({ type: 'REMOVE_PLAYER', payload: p })}
-                className={styles.removeBtn}
-              >
-                ×
-              </button>
             </div>
           ))}
         </div>

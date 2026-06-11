@@ -36,13 +36,12 @@ describe('PlayersTab', () => {
     expect(screen.getAllByText(/👤 Bob/)).toHaveLength(1);
   });
 
-  it('removes a player when × button clicked', () => {
+  it('added player stays in the list (removal disabled)', () => {
     renderTab();
     const input = screen.getByPlaceholderText(/imię gracza/i);
     fireEvent.change(input, { target: { value: 'Charlie' } });
     fireEvent.click(screen.getByRole('button', { name: /dodaj/i }));
     expect(screen.getByText(/Charlie/)).toBeInTheDocument();
-    fireEvent.click(screen.getByTitle(/usuń Charlie/i));
-    expect(screen.queryByText(/Charlie/)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(/usuń Charlie/i)).not.toBeInTheDocument();
   });
 });
