@@ -13,6 +13,7 @@ import styles from './App.module.css';
 export default function App() {
   const { state, dispatch } = useApp();
   const [tab, setTab] = useState<TabId>('matches');
+  const [loading, setLoading] = useState(true);
   const isSyncing = useRef(false);
   const { syncing: apiSyncing, sync: apiSync } = useAutoResults();
 
@@ -22,9 +23,11 @@ export default function App() {
         if (isSyncing.current) return;
         dispatch({ type: 'SET_STATE', payload: data });
         dispatch({ type: 'SET_ONLINE', payload: true });
+        setLoading(false);
       },
       () => {
         dispatch({ type: 'SET_ONLINE', payload: false });
+        setLoading(false);
       },
     );
     return unsub;
@@ -47,6 +50,17 @@ export default function App() {
         setTimeout(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' }), 2500);
       });
   }, [players, results, bets, dispatch]);
+
+  if (loading) {
+    return (
+      <div className={styles.app}>
+        <div className={styles.loader}>
+          <div className={styles.spinner} />
+          <span>Łączenie...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.app}>
