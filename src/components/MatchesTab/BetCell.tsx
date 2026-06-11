@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useApp } from '../../context/AppContext';
 import { outcome, isLocked, getStreakAt } from '../../lib/scoring';
 import { saveBet } from '../../lib/firebase';
@@ -18,6 +19,8 @@ export function BetCell({ player, match, result }: Props) {
   const homeRef = useRef<HTMLInputElement>(null);
   const awayRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Survives Firebase resets during rapid typing — only updated by handleChange, never by renders
+  const localBet = useRef<Score | undefined>(undefined);
 
   const focusNext = (side: 'home' | 'away') => {
     if (side === 'home') {
@@ -37,12 +40,19 @@ export function BetCell({ player, match, result }: Props) {
 
   const handleChange = (side: 'home' | 'away', value: string) => {
     const digit = value.replace(/[^0-9]/g, '').slice(-1);
+    // localBet is preferred over bet: if Firebase reset bet during the debounce window,
+    // localBet still holds what the user actually typed
+    const base = localBet.current ?? bet;
     const newScore: Score = {
-      home: side === 'home' ? digit : (bet?.home ?? ''),
-      away: side === 'away' ? digit : (bet?.away ?? ''),
+      home: side === 'home' ? digit : (base?.home ?? ''),
+      away: side === 'away' ? digit : (base?.away ?? ''),
     };
+    localBet.current = newScore;
 
-    dispatch({ type: 'SET_BET', payload: { player, id: match.id, score: newScore } });
+    // Flush synchronously so the next field reads updated state, not stale render values
+    flushSync(() => {
+      dispatch({ type: 'SET_BET', payload: { player, id: match.id, score: newScore } });
+    });
 
     // Debounce Firebase write so auto-advance home→away sends one request
     clearTimeout(saveTimer.current);

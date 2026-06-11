@@ -24,23 +24,34 @@ function getDb() {
   return db;
 }
 
-export type FirebaseData = Pick<AppState, 'players' | 'results' | 'bets'>;
-
 export function subscribeToRoom(
-  onData: (data: FirebaseData) => void,
+  onPlayers: (players: string[]) => void,
+  onResults: (results: AppState['results']) => void,
+  onBets: (bets: AppState['bets']) => void,
   onError: (err: Error) => void,
 ): () => void {
   try {
-    const roomRef = ref(getDb(), `rooms/${ROOM_ID}`);
-    const unsub = onValue(
-      roomRef,
-      snap => {
-        const val = snap.val() as FirebaseData | null;
-        if (val) onData(val);
-      },
+    const database = getDb();
+    const unsubPlayers = onValue(
+      ref(database, `rooms/${ROOM_ID}/players`),
+      snap => onPlayers(snap.val() ?? []),
       onError,
     );
-    return unsub;
+    const unsubResults = onValue(
+      ref(database, `rooms/${ROOM_ID}/results`),
+      snap => onResults(snap.val() ?? {}),
+      onError,
+    );
+    const unsubBets = onValue(
+      ref(database, `rooms/${ROOM_ID}/bets`),
+      snap => onBets(snap.val() ?? {}),
+      onError,
+    );
+    return () => {
+      unsubPlayers();
+      unsubResults();
+      unsubBets();
+    };
   } catch (e) {
     onError(e as Error);
     return () => {};
@@ -57,4 +68,10 @@ export async function saveBet(player: string, matchId: number, score: Score): Pr
 export async function savePlayers(players: string[]): Promise<void> {
   const playersRef = ref(getDb(), `rooms/${ROOM_ID}/players`);
   await set(playersRef, players);
+}
+
+// Saves all results in one write — single Firebase event, avoids spamming onValue listeners
+export async function saveResults(results: Record<number, Score>): Promise<void> {
+  const resultsRef = ref(getDb(), `rooms/${ROOM_ID}/results`);
+  await set(resultsRef, results);
 }

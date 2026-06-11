@@ -12,9 +12,8 @@ export function outcome(home: string, away: string): Outcome | null {
   return 'D';
 }
 
-export function isLocked(match: Match): boolean {
-  if (!match.ts) return false;
-  return Date.now() >= match.ts - 5 * 60 * 1000;
+export function isLocked(_match: Match): boolean {
+  return false;
 }
 
 /**

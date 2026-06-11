@@ -17,16 +17,19 @@ export default function App() {
   const { syncing: apiSyncing, sync: apiSync } = useAutoResults();
 
   useEffect(() => {
-    const unsub = subscribeToRoom(
-      data => {
-        dispatch({ type: 'SET_STATE', payload: data });
+    let resolved = 0;
+    const markLoaded = () => {
+      resolved++;
+      if (resolved === 1) {
         dispatch({ type: 'SET_ONLINE', payload: true });
         setLoading(false);
-      },
-      () => {
-        dispatch({ type: 'SET_ONLINE', payload: false });
-        setLoading(false);
-      },
+      }
+    };
+    const unsub = subscribeToRoom(
+      players => { dispatch({ type: 'SET_STATE', payload: { players } }); markLoaded(); },
+      results => { dispatch({ type: 'SET_STATE', payload: { results } }); markLoaded(); },
+      bets    => { dispatch({ type: 'SET_STATE', payload: { bets } });    markLoaded(); },
+      () => { dispatch({ type: 'SET_ONLINE', payload: false }); setLoading(false); },
     );
     return unsub;
   }, [dispatch]);
