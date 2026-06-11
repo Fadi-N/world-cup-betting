@@ -75,7 +75,7 @@ interface ApiMatch {
   homeTeam: { name: string };
   awayTeam: { name: string };
   score: {
-    fullTime: { home: number | null; away: number | null };
+    fullTime: { home: number | null; away: number | null } | null;
   };
 }
 
@@ -107,7 +107,9 @@ export async function fetchWC2026Results(): Promise<Record<number, Score>> {
   const results: Record<number, Score> = {};
 
   for (const m of data.matches) {
-    const { home: homeGoals, away: awayGoals } = m.score.fullTime;
+    const fullTime = m.score?.fullTime;
+    if (!fullTime) continue;
+    const { home: homeGoals, away: awayGoals } = fullTime;
     if (homeGoals === null || awayGoals === null) continue;
 
     const plHome = toPolish(m.homeTeam.name);
