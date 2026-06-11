@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { fetchWC2026Results } from '../lib/footballApi';
 
-const TWO_HOURS = 2 * 60 * 60 * 1000;
+const ONE_HOUR = 60 * 60 * 1000;
 
 export function useAutoResults() {
   const { dispatch } = useApp();
@@ -32,7 +32,7 @@ export function useAutoResults() {
 
   useEffect(() => {
     void sync();
-    const interval = setInterval(sync, TWO_HOURS);
+    const interval = setInterval(sync, ONE_HOUR);
     const onFocus = () => { void sync(); };
     window.addEventListener('focus', onFocus);
     return () => {
