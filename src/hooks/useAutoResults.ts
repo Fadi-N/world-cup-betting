@@ -31,7 +31,6 @@ export function useAutoResults() {
   }, [dispatch, syncing]);
 
   useEffect(() => {
-    void sync();
     const interval = setInterval(sync, ONE_HOUR);
     const onFocus = () => { void sync(); };
     window.addEventListener('focus', onFocus);
