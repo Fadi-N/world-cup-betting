@@ -1,7 +1,7 @@
 import { MATCHES } from '../data/matches';
 import type { Score } from '../context/types';
 
-const API_BASE = 'https://api.football-data.org/v4';
+const API_BASE = '/api/football';
 const API_KEY = import.meta.env.VITE_FOOTBALL_API_KEY as string;
 
 // Maps football-data.org English team names → Polish names used in matches.ts
