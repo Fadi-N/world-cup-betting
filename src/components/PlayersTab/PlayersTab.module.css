@@ -1,0 +1,43 @@
+.addRow { display: flex; gap: 8px; margin-bottom: 1rem; }
+.input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+  background: #171a21;
+  color: #e8eaed;
+  font-size: 14px;
+}
+.input:focus { outline: none; border-color: #1d9e75; }
+.addBtn {
+  padding: 10px 16px;
+  background: #1d9e75;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.addBtn:hover { background: #0f6e56; }
+.empty { color: #9aa0aa; font-size: 13px; }
+.list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  background: #1f232c;
+  border-radius: 8px;
+  font-size: 13.5px;
+}
+.removeBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #6b7180;
+  padding: 0;
+  line-height: 1;
+  font-size: 17px;
+}
+.removeBtn:hover { color: #e24b4a; }
