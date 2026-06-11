@@ -20,6 +20,7 @@ export interface AppState {
   bets: Record<string, Record<number, Score>>;
   saveStatus: 'idle' | 'firebase' | 'local';
   online: boolean;
+  lastSynced: number | null;   // timestamp of last successful football-data.org sync
 }
 
 export type AppAction =
@@ -29,4 +30,5 @@ export type AppAction =
   | { type: 'SET_RESULT'; payload: { id: number; score: Score } }
   | { type: 'SET_BET'; payload: { player: string; id: number; score: Score } }
   | { type: 'SET_SAVE_STATUS'; payload: AppState['saveStatus'] }
-  | { type: 'SET_ONLINE'; payload: boolean };
+  | { type: 'SET_ONLINE'; payload: boolean }
+  | { type: 'SET_LAST_SYNCED'; payload: number };

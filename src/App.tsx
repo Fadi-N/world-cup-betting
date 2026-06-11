@@ -14,7 +14,7 @@ export default function App() {
   const { state, dispatch } = useApp();
   const [tab, setTab] = useState<TabId>('matches');
   const isSyncing = useRef(false);
-  useAutoResults();
+  const { syncing: apiSyncing, sync: apiSync } = useAutoResults();
 
   useEffect(() => {
     const local = loadLocal();
@@ -59,7 +59,12 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <Header online={state.online} />
+      <Header
+        online={state.online}
+        lastSynced={state.lastSynced}
+        syncing={apiSyncing}
+        onSync={apiSync}
+      />
       <Tabs active={tab} onChange={setTab} />
       <main className={styles.main}>
         {tab === 'matches' && <MatchesTab />}

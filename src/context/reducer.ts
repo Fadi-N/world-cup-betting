@@ -6,6 +6,7 @@ export const initialState: AppState = {
   bets: {},
   saveStatus: 'idle',
   online: true,
+  lastSynced: null,
 };
 
 export function reducer(state: AppState, action: AppAction): AppState {
@@ -42,6 +43,8 @@ export function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, saveStatus: action.payload };
     case 'SET_ONLINE':
       return { ...state, online: action.payload };
+    case 'SET_LAST_SYNCED':
+      return { ...state, lastSynced: action.payload };
     default:
       return state;
   }
