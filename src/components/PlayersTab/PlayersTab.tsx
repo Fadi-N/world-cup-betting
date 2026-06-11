@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { savePlayers } from '../../lib/firebase';
 import styles from './PlayersTab.module.css';
 
 export function PlayersTab() {
@@ -8,9 +9,16 @@ export function PlayersTab() {
 
   const add = () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed || state.players.includes(trimmed)) return;
+    const newPlayers = [...state.players, trimmed];
     dispatch({ type: 'ADD_PLAYER', payload: trimmed });
     setName('');
+    savePlayers(newPlayers)
+      .then(() => {
+        dispatch({ type: 'SET_SAVE_STATUS', payload: 'firebase' });
+        setTimeout(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' }), 2500);
+      })
+      .catch(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'local' }));
   };
 
   return (

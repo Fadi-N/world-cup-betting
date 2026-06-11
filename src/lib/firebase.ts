@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
-import type { AppState } from '../context/types';
+import type { AppState, Score } from '../context/types';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY as string,
@@ -47,8 +47,14 @@ export function subscribeToRoom(
   }
 }
 
-export async function saveToRoom(data: FirebaseData): Promise<void> {
-  const roomRef = ref(getDb(), `rooms/${ROOM_ID}`);
-  await set(roomRef, data);
+// Saves only one player's bet for one match — safe for concurrent writes
+export async function saveBet(player: string, matchId: number, score: Score): Promise<void> {
+  const betRef = ref(getDb(), `rooms/${ROOM_ID}/bets/${player}/${matchId}`);
+  await set(betRef, score);
 }
 
+// Saves the players list — called only when adding a player
+export async function savePlayers(players: string[]): Promise<void> {
+  const playersRef = ref(getDb(), `rooms/${ROOM_ID}/players`);
+  await set(playersRef, players);
+}

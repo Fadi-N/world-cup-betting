@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './components/Header/Header';
 import { Tabs, type TabId } from './components/Tabs/Tabs';
 import { SavePill } from './components/SavePill/SavePill';
@@ -6,7 +6,7 @@ import { MatchesTab } from './components/MatchesTab/MatchesTab';
 import { PlayersTab } from './components/PlayersTab/PlayersTab';
 import { RankingTab } from './components/RankingTab/RankingTab';
 import { useApp } from './context/AppContext';
-import { subscribeToRoom, saveToRoom } from './lib/firebase';
+import { subscribeToRoom } from './lib/firebase';
 import { useAutoResults } from './hooks/useAutoResults';
 import styles from './App.module.css';
 
@@ -14,13 +14,11 @@ export default function App() {
   const { state, dispatch } = useApp();
   const [tab, setTab] = useState<TabId>('matches');
   const [loading, setLoading] = useState(true);
-  const isSyncing = useRef(false);
   const { syncing: apiSyncing, sync: apiSync } = useAutoResults();
 
   useEffect(() => {
     const unsub = subscribeToRoom(
       data => {
-        if (isSyncing.current) return;
         dispatch({ type: 'SET_STATE', payload: data });
         dispatch({ type: 'SET_ONLINE', payload: true });
         setLoading(false);
@@ -32,24 +30,6 @@ export default function App() {
     );
     return unsub;
   }, [dispatch]);
-
-  const { players, results, bets } = state;
-  useEffect(() => {
-    if (!players.length && !Object.keys(results).length) return;
-    const data = { players, results, bets };
-    isSyncing.current = true;
-    saveToRoom(data)
-      .then(() => {
-        dispatch({ type: 'SET_SAVE_STATUS', payload: 'firebase' });
-      })
-      .catch(() => {
-        dispatch({ type: 'SET_SAVE_STATUS', payload: 'local' });
-      })
-      .finally(() => {
-        isSyncing.current = false;
-        setTimeout(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' }), 2500);
-      });
-  }, [players, results, bets, dispatch]);
 
   if (loading) {
     return (

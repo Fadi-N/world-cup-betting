@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { outcome, isLocked, getStreakAt } from '../../lib/scoring';
+import { saveBet } from '../../lib/firebase';
 import type { Match, Score } from '../../context/types';
 import styles from './MatchesTab.module.css';
 
@@ -16,6 +17,7 @@ export function BetCell({ player, match, result }: Props) {
   const locked = isLocked(match);
   const homeRef = useRef<HTMLInputElement>(null);
   const awayRef = useRef<HTMLInputElement>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const focusNext = (side: 'home' | 'away') => {
     if (side === 'home') {
@@ -23,7 +25,6 @@ export function BetCell({ player, match, result }: Props) {
       awayRef.current?.select();
       return;
     }
-    // Jump to next unlocked home input for this player
     const all = Array.from(
       document.querySelectorAll<HTMLInputElement>(
         `input[data-player="${player}"][data-side="home"]:not(:disabled)`,
@@ -35,19 +36,25 @@ export function BetCell({ player, match, result }: Props) {
   };
 
   const handleChange = (side: 'home' | 'away', value: string) => {
-    // Keep only the last digit entered (0–9)
     const digit = value.replace(/[^0-9]/g, '').slice(-1);
-    dispatch({
-      type: 'SET_BET',
-      payload: {
-        player,
-        id: match.id,
-        score: {
-          home: side === 'home' ? digit : (bet?.home ?? ''),
-          away: side === 'away' ? digit : (bet?.away ?? ''),
-        },
-      },
-    });
+    const newScore: Score = {
+      home: side === 'home' ? digit : (bet?.home ?? ''),
+      away: side === 'away' ? digit : (bet?.away ?? ''),
+    };
+
+    dispatch({ type: 'SET_BET', payload: { player, id: match.id, score: newScore } });
+
+    // Debounce Firebase write so auto-advance home→away sends one request
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveBet(player, match.id, newScore)
+        .then(() => {
+          dispatch({ type: 'SET_SAVE_STATUS', payload: 'firebase' });
+          setTimeout(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' }), 2500);
+        })
+        .catch(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'local' }));
+    }, 400);
+
     if (digit !== '') focusNext(side);
   };
 
