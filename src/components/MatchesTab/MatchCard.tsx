@@ -1,7 +1,6 @@
 import { COUNTRY_ISO } from '../../data/matches';
 import { isLocked } from '../../lib/scoring';
 import { BetCell } from './BetCell';
-import { useApp } from '../../context/AppContext';
 import type { Match, Score } from '../../context/types';
 import styles from './MatchesTab.module.css';
 
@@ -27,22 +26,8 @@ interface Props {
 }
 
 export function MatchCard({ match, result, players }: Props) {
-  const { dispatch } = useApp();
   const locked = isLocked(match);
   const isGroup = !!match.grp;
-
-  const handleResult = (side: 'home' | 'away', value: string) => {
-    dispatch({
-      type: 'SET_RESULT',
-      payload: {
-        id: match.id,
-        score: {
-          home: side === 'home' ? value : (result?.home ?? ''),
-          away: side === 'away' ? value : (result?.away ?? ''),
-        },
-      },
-    });
-  };
 
   const badge = result
     ? <span className={`${styles.badge} ${styles.badgeResult}`}>wynik</span>
@@ -67,25 +52,9 @@ export function MatchCard({ match, result, players }: Props) {
         </div>
 
         <div className={styles.scoreBlock}>
-          <input
-            type="number"
-            min="0"
-            max="99"
-            value={result?.home ?? ''}
-            onChange={e => handleResult('home', e.target.value)}
-            className={styles.scoreInput}
-            aria-label="admin home score"
-          />
+          <span className={styles.scoreDisplay}>{result?.home ?? '–'}</span>
           <span className={styles.scoreSep}>:</span>
-          <input
-            type="number"
-            min="0"
-            max="99"
-            value={result?.away ?? ''}
-            onChange={e => handleResult('away', e.target.value)}
-            className={styles.scoreInput}
-            aria-label="admin away score"
-          />
+          <span className={styles.scoreDisplay}>{result?.away ?? '–'}</span>
         </div>
 
         <div className={`${styles.team} ${styles.teamAway}`}>
