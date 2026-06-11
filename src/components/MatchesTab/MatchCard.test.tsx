@@ -59,16 +59,16 @@ describe('MatchCard', () => {
 
   it('bet inputs are disabled when match is locked', () => {
     renderCard(lockedMatch);
-    const inputs = screen.getAllByRole('spinbutton');
-    // admin inputs + player bet inputs — all should be disabled when locked
-    const betInputs = inputs.filter(i => i.getAttribute('aria-label')?.includes('bet'));
+    const betInputs = screen.getAllByRole('textbox').filter(
+      i => i.getAttribute('aria-label')?.includes('bet'),
+    );
     expect(betInputs.length).toBeGreaterThan(0);
     betInputs.forEach(input => expect(input).toBeDisabled());
   });
 
   it('bet inputs are enabled when match is open', () => {
     renderCard(openMatch);
-    const betInputs = screen.getAllByRole('spinbutton').filter(
+    const betInputs = screen.getAllByRole('textbox').filter(
       i => i.getAttribute('aria-label')?.includes('bet'),
     );
     betInputs.forEach(input => expect(input).not.toBeDisabled());

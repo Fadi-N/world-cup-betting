@@ -42,20 +42,20 @@ describe('BetCell', () => {
 
   it('renders home and away inputs', () => {
     renderCell(openMatch);
-    expect(screen.getByLabelText('Alice home bet')).toBeInTheDocument();
-    expect(screen.getByLabelText('Alice away bet')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Alice home bet' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Alice away bet' })).toBeInTheDocument();
   });
 
   it('inputs are enabled when match is open', () => {
     renderCell(openMatch);
-    expect(screen.getByLabelText('Alice home bet')).not.toBeDisabled();
-    expect(screen.getByLabelText('Alice away bet')).not.toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Alice home bet' })).not.toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Alice away bet' })).not.toBeDisabled();
   });
 
   it('inputs are disabled when match is locked', () => {
     renderCell(lockedMatch);
-    expect(screen.getByLabelText('Alice home bet')).toBeDisabled();
-    expect(screen.getByLabelText('Alice away bet')).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Alice home bet' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Alice away bet' })).toBeDisabled();
   });
 
   it('does not show points or fire badge when no result', () => {

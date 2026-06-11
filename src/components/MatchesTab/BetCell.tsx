@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { outcome, isLocked, getStreakAt } from '../../lib/scoring';
 import type { Match, Score } from '../../context/types';
@@ -13,19 +14,41 @@ export function BetCell({ player, match, result }: Props) {
   const { state, dispatch } = useApp();
   const bet = state.bets[player]?.[match.id];
   const locked = isLocked(match);
+  const homeRef = useRef<HTMLInputElement>(null);
+  const awayRef = useRef<HTMLInputElement>(null);
+
+  const focusNext = (side: 'home' | 'away') => {
+    if (side === 'home') {
+      awayRef.current?.focus();
+      awayRef.current?.select();
+      return;
+    }
+    // Jump to next unlocked home input for this player
+    const all = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        `input[data-player="${player}"][data-side="home"]:not(:disabled)`,
+      ),
+    );
+    const idx = all.findIndex(el => Number(el.dataset.matchId) === match.id);
+    const next = all[idx + 1];
+    if (next) { next.focus(); next.select(); }
+  };
 
   const handleChange = (side: 'home' | 'away', value: string) => {
+    // Keep only the last digit entered (0–9)
+    const digit = value.replace(/[^0-9]/g, '').slice(-1);
     dispatch({
       type: 'SET_BET',
       payload: {
         player,
         id: match.id,
         score: {
-          home: side === 'home' ? value : (bet?.home ?? ''),
-          away: side === 'away' ? value : (bet?.away ?? ''),
+          home: side === 'home' ? digit : (bet?.home ?? ''),
+          away: side === 'away' ? digit : (bet?.away ?? ''),
         },
       },
     });
+    if (digit !== '') focusNext(side);
   };
 
   let cellClass = styles.betCell;
@@ -60,9 +83,13 @@ export function BetCell({ player, match, result }: Props) {
     <div className={cellClass} title={locked ? 'Typowanie zamknięte' : player}>
       <span className={styles.betName}>{player}</span>
       <input
-        type="number"
-        min="0"
-        max="99"
+        ref={homeRef}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]"
+        data-player={player}
+        data-match-id={match.id}
+        data-side="home"
         value={bet?.home ?? ''}
         disabled={locked}
         onChange={e => handleChange('home', e.target.value)}
@@ -71,9 +98,13 @@ export function BetCell({ player, match, result }: Props) {
       />
       <span className={styles.betColon}>:</span>
       <input
-        type="number"
-        min="0"
-        max="99"
+        ref={awayRef}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]"
+        data-player={player}
+        data-match-id={match.id}
+        data-side="away"
         value={bet?.away ?? ''}
         disabled={locked}
         onChange={e => handleChange('away', e.target.value)}
