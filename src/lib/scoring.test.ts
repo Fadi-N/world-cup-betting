@@ -157,4 +157,10 @@ describe('calcAllPts()', () => {
     );
     expect(result).toEqual({ Alice: 0 });
   });
+
+  it('does not crash when a result value is null (corrupt Firebase data)', () => {
+    const results = { 1: null } as unknown as Record<number, import('../context/types').Score>;
+    expect(() => calcAllPts(['Alice'], results, {})).not.toThrow();
+    expect(calcAllPts(['Alice'], results, {})).toEqual({ Alice: 0 });
+  });
 });

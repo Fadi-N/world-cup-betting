@@ -1,8 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BetCell } from './BetCell';
 import { AppProvider } from '../../context/AppContext';
 import type { Match } from '../../context/types';
+
+vi.mock('../../lib/firebase', () => ({
+  saveBet: vi.fn().mockResolvedValue(undefined),
+}));
 
 const NOW = 1_700_000_000_000;
 
@@ -67,5 +71,17 @@ describe('BetCell', () => {
   it('does not show points when result is set but no bet exists', () => {
     renderCell(openMatch, { home: '2', away: '1' });
     expect(screen.queryByText(/\+/)).not.toBeInTheDocument();
+  });
+
+  it('calls saveBet after typing a digit (after debounce)', async () => {
+    vi.useFakeTimers();
+    const { saveBet } = await import('../../lib/firebase');
+    renderCell(openMatch);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Alice home bet' }), {
+      target: { value: '2' },
+    });
+    await act(async () => { vi.advanceTimersByTime(500); });
+    expect(saveBet).toHaveBeenCalledWith('Alice', openMatch.id, expect.objectContaining({ home: '2' }));
+    vi.useRealTimers();
   });
 });
