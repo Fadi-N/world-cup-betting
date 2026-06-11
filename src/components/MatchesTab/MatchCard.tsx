@@ -1,0 +1,106 @@
+import { COUNTRY_ISO } from '../../data/matches';
+import { isLocked } from '../../lib/scoring';
+import { BetCell } from './BetCell';
+import { useApp } from '../../context/AppContext';
+import type { Match, Score } from '../../context/types';
+import styles from './MatchesTab.module.css';
+
+const FLAG_BASE = 'https://cdn.jsdelivr.net/npm/flag-icons@7.5.0/flags/4x3';
+
+function FlagImg({ country }: { country: string }) {
+  const iso = COUNTRY_ISO[country];
+  if (!iso) return <span className={styles.flagPlaceholder}>{country.slice(0, 2)}</span>;
+  return (
+    <img
+      src={`${FLAG_BASE}/${iso}.svg`}
+      alt={country}
+      className={styles.flag}
+      loading="lazy"
+    />
+  );
+}
+
+interface Props {
+  match: Match;
+  result?: Score;
+  players: string[];
+}
+
+export function MatchCard({ match, result, players }: Props) {
+  const { dispatch } = useApp();
+  const locked = isLocked(match);
+  const isGroup = !!match.grp;
+
+  const handleResult = (side: 'home' | 'away', value: string) => {
+    dispatch({
+      type: 'SET_RESULT',
+      payload: {
+        id: match.id,
+        score: {
+          home: side === 'home' ? value : (result?.home ?? ''),
+          away: side === 'away' ? value : (result?.away ?? ''),
+        },
+      },
+    });
+  };
+
+  const badge = result
+    ? <span className={`${styles.badge} ${styles.badgeResult}`}>wynik</span>
+    : locked
+    ? <span className={`${styles.badge} ${styles.badgeLocked}`}>🔒 zamknięte</span>
+    : <span className={`${styles.badge} ${styles.badgeOpen}`}>otwarte</span>;
+
+  return (
+    <div className={styles.matchCard} data-mid={match.id}>
+      <div className={styles.matchHeader}>
+        <div className={styles.matchMeta}>
+          <span className={styles.matchDate}>{match.date}</span>
+          {match.grp && <span className={styles.matchGrp}>Gr. {match.grp}</span>}
+        </div>
+        {badge}
+      </div>
+
+      <div className={styles.teams}>
+        <div className={`${styles.team} ${styles.teamHome}`}>
+          <span className={styles.teamName}>{match.home}</span>
+          {isGroup && <FlagImg country={match.home} />}
+        </div>
+
+        <div className={styles.scoreBlock}>
+          <input
+            type="number"
+            min="0"
+            max="99"
+            value={result?.home ?? ''}
+            onChange={e => handleResult('home', e.target.value)}
+            className={styles.scoreInput}
+            aria-label="admin home score"
+          />
+          <span className={styles.scoreSep}>:</span>
+          <input
+            type="number"
+            min="0"
+            max="99"
+            value={result?.away ?? ''}
+            onChange={e => handleResult('away', e.target.value)}
+            className={styles.scoreInput}
+            aria-label="admin away score"
+          />
+        </div>
+
+        <div className={`${styles.team} ${styles.teamAway}`}>
+          {isGroup && <FlagImg country={match.away} />}
+          <span className={styles.teamName}>{match.away}</span>
+        </div>
+      </div>
+
+      {players.length > 0 && (
+        <div className={styles.betsRow}>
+          {players.map(p => (
+            <BetCell key={p} player={p} match={match} result={result} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

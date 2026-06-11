@@ -1,0 +1,222 @@
+/* ── Match card ─────────────────────────────────────────────────── */
+.matchCard {
+  background: #171a21;
+  border: 1px solid #2a2f3a;
+  border-radius: 11px;
+  padding: .8rem .9rem;
+  margin-bottom: .5rem;
+}
+.matchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+.matchMeta { display: flex; flex-direction: column; gap: 2px; min-width: 74px; }
+.matchDate { font-size: 11px; color: #9aa0aa; }
+.matchGrp  { font-size: 10px; font-weight: 600; color: #6b7180; }
+
+.badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badgeOpen   { background: #1f232c; color: #6b7180; }
+.badgeLocked { background: #3a1f1f; color: #f0a0a0; }
+.badgeResult { background: #1c3320; color: #7fd897; }
+
+/* ── Teams row ──────────────────────────────────────────────────── */
+.teams {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+  margin-bottom: .5rem;
+}
+.team {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+}
+.teamHome { justify-content: flex-end; }
+.teamAway { justify-content: flex-start; }
+.teamName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flag {
+  width: 25px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
+}
+.flagPlaceholder {
+  width: 25px;
+  height: 18px;
+  background: #2a2f3a;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #6b7180;
+}
+
+/* ── Admin score block ──────────────────────────────────────────── */
+.scoreBlock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  background: #1f232c;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.scoreInput {
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  border: 1px solid #2a2f3a;
+  border-radius: 6px;
+  background: #0f1115;
+  color: #e8eaed;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0;
+}
+.scoreInput:focus { outline: none; border-color: #1d9e75; }
+.scoreSep { font-size: 13px; color: #9aa0aa; }
+
+/* ── Bet cells ──────────────────────────────────────────────────── */
+.betsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 6px;
+  padding-top: .65rem;
+  border-top: 1px solid #2a2f3a;
+  margin-top: .65rem;
+}
+.betCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #1f232c;
+  border: 1px solid transparent;
+}
+.betCell.hit   { background: #1c3320; border-color: #2f5c38; }
+.betCell.exact { background: #16293f; border-color: #2a4f78; }
+.betCell.miss  { opacity: .5; }
+.betCell.locked { opacity: .85; }
+.betName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9aa0aa;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.betCell.hit   .betName { color: #7fd897; }
+.betCell.exact .betName { color: #74b6f0; }
+.betInput {
+  width: 26px;
+  height: 26px;
+  text-align: center;
+  border: 1px solid #2a2f3a;
+  border-radius: 5px;
+  background: #0f1115;
+  color: #e8eaed;
+  font-size: 12px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.betInput:focus { outline: none; border-color: #1d9e75; }
+.betInput:disabled { opacity: .55; cursor: not-allowed; background: #171a21; }
+.betColon  { font-size: 11px; color: #6b7180; }
+.betFire   { font-size: 11px; flex-shrink: 0; }
+.betPts    { font-size: 10px; font-weight: 600; color: #6b7180; min-width: 26px; text-align: right; flex-shrink: 0; }
+
+/* ── Toolbar ────────────────────────────────────────────────────── */
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 1rem; }
+.filterBtn {
+  padding: 5px 11px;
+  font-size: 12px;
+  border: 1px solid #2a2f3a;
+  background: transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  color: #9aa0aa;
+}
+.filterBtn:hover { color: #e8eaed; }
+.filterActive { background: #1d9e75; color: #fff; border-color: #1d9e75; }
+
+/* ── Live ranking bar ───────────────────────────────────────────── */
+.rankingBar {
+  background: #171a21;
+  border: 1px solid #2a2f3a;
+  border-radius: 11px;
+  padding: .7rem .9rem;
+  margin-bottom: 1rem;
+}
+.rankingBarHead {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #9aa0aa;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: .55rem;
+}
+.rankDot { width: 7px; height: 7px; border-radius: 50%; background: #1d9e75; }
+.rankChips { display: flex; flex-wrap: wrap; gap: 7px; }
+.rankChip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  background: #1f232c;
+  border: 1px solid #2a2f3a;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.rankChip.lead { border-color: #1d9e75; background: #1c3320; }
+.rankPos  { font-weight: 600; color: #6b7180; font-size: 11px; }
+.rankName { font-weight: 600; }
+.rankPts  { font-weight: 600; color: #1d9e75; }
+
+/* ── Legend ─────────────────────────────────────────────────────── */
+.legend { display: flex; flex-wrap: wrap; gap: 11px; margin-bottom: 1rem; }
+.legendItem { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #9aa0aa; }
+.legendDot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── Section header ─────────────────────────────────────────────── */
+.sectionHeader {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #9aa0aa;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 1.25rem 0 .5rem;
+  padding: 5px 0;
+  border-bottom: 1px solid #2a2f3a;
+}
+.sectionHeader:first-child { margin-top: 0; }
+
+/* ── Empty state ────────────────────────────────────────────────── */
+.empty { text-align: center; padding: 2.5rem 1rem; color: #9aa0aa; font-size: 14px; }
+
+@media (max-width: 680px) {
+  .teams { flex-wrap: wrap; }
+  .betsRow { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+}
