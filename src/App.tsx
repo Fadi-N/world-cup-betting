@@ -7,12 +7,14 @@ import { PlayersTab } from './components/PlayersTab/PlayersTab';
 import { RankingTab } from './components/RankingTab/RankingTab';
 import { useApp } from './context/AppContext';
 import { subscribeToRoom, saveToRoom, saveLocal, loadLocal } from './lib/firebase';
+import { useAutoResults } from './hooks/useAutoResults';
 import styles from './App.module.css';
 
 export default function App() {
   const { state, dispatch } = useApp();
   const [tab, setTab] = useState<TabId>('matches');
   const isSyncing = useRef(false);
+  useAutoResults();
 
   useEffect(() => {
     const local = loadLocal();
