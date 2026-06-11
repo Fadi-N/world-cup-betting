@@ -52,16 +52,3 @@ export async function saveToRoom(data: FirebaseData): Promise<void> {
   await set(roomRef, data);
 }
 
-const LS_KEY = `typer-mundial-${ROOM_ID}`;
-
-export function saveLocal(data: FirebaseData): void {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch { /* noop */ }
-}
-
-export function loadLocal(): FirebaseData | null {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as FirebaseData;
-  } catch { return null; }
-}

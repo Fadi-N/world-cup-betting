@@ -6,7 +6,7 @@ import { MatchesTab } from './components/MatchesTab/MatchesTab';
 import { PlayersTab } from './components/PlayersTab/PlayersTab';
 import { RankingTab } from './components/RankingTab/RankingTab';
 import { useApp } from './context/AppContext';
-import { subscribeToRoom, saveToRoom, saveLocal, loadLocal } from './lib/firebase';
+import { subscribeToRoom, saveToRoom } from './lib/firebase';
 import { useAutoResults } from './hooks/useAutoResults';
 import styles from './App.module.css';
 
@@ -15,13 +15,6 @@ export default function App() {
   const [tab, setTab] = useState<TabId>('matches');
   const isSyncing = useRef(false);
   const { syncing: apiSyncing, sync: apiSync } = useAutoResults();
-
-  useEffect(() => {
-    const local = loadLocal();
-    if (local) {
-      dispatch({ type: 'SET_STATE', payload: local });
-    }
-  }, [dispatch]);
 
   useEffect(() => {
     const unsub = subscribeToRoom(
@@ -45,10 +38,8 @@ export default function App() {
     saveToRoom(data)
       .then(() => {
         dispatch({ type: 'SET_SAVE_STATUS', payload: 'firebase' });
-        saveLocal(data);
       })
       .catch(() => {
-        saveLocal(data);
         dispatch({ type: 'SET_SAVE_STATUS', payload: 'local' });
       })
       .finally(() => {
