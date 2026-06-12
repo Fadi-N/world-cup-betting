@@ -64,8 +64,15 @@ export function calcAllPts(
       }
 
       const isExact = bet.home === res.home && bet.away === res.away;
-      let pts = isExact ? 10 : 5;
+
+      if (!isExact) {
+        streaks[player] = 0;
+        totals[player] += 5;
+        continue;
+      }
+
       streaks[player]++;
+      let pts = 10;
 
       if (streaks[player] >= 3) pts *= 3;
       else if (streaks[player] === 2) pts *= 2;
@@ -101,6 +108,8 @@ export function getStreakAt(
 
     const betOut = outcome(bet.home, bet.away);
     if (!betOut || betOut !== resOut) { streak = 0; continue; }
+    const isExact = bet.home === res.home && bet.away === res.away;
+    if (!isExact) { streak = 0; continue; }
     streak++;
   }
   return streak;

@@ -87,13 +87,13 @@ describe('calcAllPts()', () => {
     expect(result).toEqual({ Alice: 10 });
   });
 
-  it('two consecutive correct outcomes → 15 pts (5 + 5×2)', () => {
+  it('two consecutive correct outcomes (not exact) → 10 pts, no streak', () => {
     const result = calcAllPts(
       ['Alice'],
       { 1: { home: '2', away: '1' }, 2: { home: '1', away: '0' } },
       { Alice: { 1: { home: '3', away: '0' }, 2: { home: '2', away: '1' } } },
     );
-    expect(result).toEqual({ Alice: 15 });
+    expect(result).toEqual({ Alice: 10 });
   });
 
   it('three consecutive exact scores → 60 pts (10 + 10×2 + 10×3)', () => {
