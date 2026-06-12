@@ -38,11 +38,13 @@ export function useAutoResults() {
   useEffect(() => {
     void sync();
     const interval = setInterval(sync, ONE_HOUR);
-    const onFocus = () => { void sync(); };
-    window.addEventListener('focus', onFocus);
+    const onVisible = () => { if (document.visibilityState === 'visible') void sync(); };
+    window.addEventListener('focus', onVisible);
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
       clearInterval(interval);
-      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('focus', onVisible);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [sync]);
 

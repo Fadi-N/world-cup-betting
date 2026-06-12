@@ -96,7 +96,7 @@ export async function fetchWC2026Results(): Promise<Record<number, Score>> {
 
   const res = await fetch(
     `${API_BASE}/competitions/WC/matches?season=2026&status=FINISHED`,
-    { headers: { 'X-Auth-Token': API_KEY } },
+    { headers: { 'X-Auth-Token': API_KEY }, cache: 'no-store' },
   );
 
   if (!res.ok) {
