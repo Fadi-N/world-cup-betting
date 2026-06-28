@@ -86,15 +86,16 @@ function resolveWinner(
   results: Record<number, Score>,
   standings: Record<string, string[]>,
   thirds: string[],
+  fallback?: string,
 ): string {
   const r = results[matchId];
-  if (!r) return `W${matchId}`;
+  if (!r) return fallback ?? `W${matchId}`;
   const hg = parseGoals(r.home);
   const ag = parseGoals(r.away);
-  if (hg < 0 || ag < 0 || hg === ag) return `W${matchId}`;
+  if (hg < 0 || ag < 0 || hg === ag) return fallback ?? `W${matchId}`;
 
   const m = matches.find(x => x.id === matchId);
-  if (!m) return `W${matchId}`;
+  if (!m) return fallback ?? `W${matchId}`;
 
   const home = resolveInner(m.home, matches, results, standings, thirds);
   const away = resolveInner(m.away, matches, results, standings, thirds);
@@ -149,8 +150,8 @@ function resolveInner(
     return resolveWinner(parseInt(winnerOf[1], 10), matches, results, standings, thirds);
   }
 
-  if (placeholder === 'Zwyc. półf. 1') return resolveWinner(101, matches, results, standings, thirds);
-  if (placeholder === 'Zwyc. półf. 2') return resolveWinner(102, matches, results, standings, thirds);
+  if (placeholder === 'Zwyc. półf. 1') return resolveWinner(101, matches, results, standings, thirds, 'Zwyc. półf. 1');
+  if (placeholder === 'Zwyc. półf. 2') return resolveWinner(102, matches, results, standings, thirds, 'Zwyc. półf. 2');
   if (placeholder === 'Przeg. półf. 1') return resolveLoser(101, matches, results, standings, thirds, placeholder);
   if (placeholder === 'Przeg. półf. 2') return resolveLoser(102, matches, results, standings, thirds, placeholder);
 

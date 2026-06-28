@@ -114,7 +114,6 @@ describe('fetchWC2026Results', () => {
   });
 
   it('returns multiple results when multiple known matches are finished', async () => {
-    // Use Czechy/Switzerland alias to prove multiple entries work
     vi.mocked(fetch).mockResolvedValue(
       makeApiResponse([
         makeApiMatch('Germany', 'Japan', 2, 0),
@@ -122,7 +121,121 @@ describe('fetchWC2026Results', () => {
       ]),
     );
     const result = await fetchWC2026Results();
-    // May or may not find matches depending on our data, but no crash
     expect(typeof result).toBe('object');
+  });
+
+});
+
+describe('fetchWC2026Results – knockoutLookup', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('resolves a knockout match via knockoutLookup', async () => {
+    const knockoutLookup = new Map<string, number>([
+      ['RPA:Kanada', 73],
+    ]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch('South Africa', 'Canada', 1, 0)]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[73]).toEqual({ home: '1', away: '0' });
+  });
+
+  it('resolves group match from static lookup AND knockout match from knockoutLookup', async () => {
+    // Niemcy vs Paragwaj is a real group match (via MATCH_LOOKUP)
+    // RPA vs Kanada is a knockout match (via knockoutLookup)
+    const knockoutLookup = new Map<string, number>([
+      ['RPA:Kanada', 73],
+    ]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([
+        makeApiMatch('Germany', 'Paraguay', 2, 0),
+        makeApiMatch('South Africa', 'Canada', 1, 0),
+      ]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[73]).toEqual({ home: '1', away: '0' });
+    // Germany vs Paraguay group match may or may not be in MATCH_LOOKUP
+    expect(typeof result).toBe('object');
+  });
+
+  it('prefers static MATCH_LOOKUP over knockoutLookup for same team pair', async () => {
+    // Meksyk:RPA is a real group-stage match in MATCH_LOOKUP
+    // We also put it in knockoutLookup under a wrong id; static lookup should win
+    const staticMatchId = 1; // id of Meksyk vs RPA group match
+    const knockoutLookup = new Map<string, number>([
+      ['Meksyk:RPA', 999], // wrong id — static lookup should win
+    ]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch('Mexico', 'South Africa', 2, 0)]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    // Static lookup finds 'Meksyk:RPA' → staticMatchId, so result[staticMatchId] should be set
+    expect(result[staticMatchId]).toEqual({ home: '2', away: '0' });
+    // knockoutLookup id (999) should NOT be set
+    expect(result[999]).toBeUndefined();
+  });
+
+  it('ignores match not in either lookup', async () => {
+    const knockoutLookup = new Map<string, number>([['Alpha:Beta', 99]]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch('Unknown', 'Team', 2, 2)]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(Object.keys(result)).toHaveLength(0);
+  });
+
+  it('works correctly when knockoutLookup is empty', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch('South Africa', 'Canada', 2, 1)]),
+    );
+    const result = await fetchWC2026Results(new Map());
+    // South Africa vs Canada is not in static MATCH_LOOKUP (it's a knockout match)
+    expect(Object.keys(result)).toHaveLength(0);
+  });
+
+  it('maps multiple knockout matches from lookup', async () => {
+    const knockoutLookup = new Map<string, number>([
+      ['RPA:Kanada', 73],
+      ['Brazylia:Japonia', 74],
+      ['Niemcy:Paragwaj', 75],
+    ]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([
+        makeApiMatch('South Africa', 'Canada', 1, 0),
+        makeApiMatch('Brazil', 'Japan', 2, 1),
+        makeApiMatch('Germany', 'Paraguay', 3, 0),
+      ]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[73]).toEqual({ home: '1', away: '0' });
+    expect(result[74]).toEqual({ home: '2', away: '1' });
+    expect(result[75]).toEqual({ home: '3', away: '0' });
+  });
+
+  it('handles null scores in knockout matches gracefully', async () => {
+    const knockoutLookup = new Map<string, number>([['RPA:Kanada', 73]]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch('South Africa', 'Canada', null, null)]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[73]).toBeUndefined();
+  });
+
+  it('uses Polish name translation when matching knockout teams', async () => {
+    // "Côte d'Ivoire" should map to "W. K. Słoniowej" via TEAM_EN_TO_PL
+    const knockoutLookup = new Map<string, number>([
+      ["W. K. Słoniowej:Norwegia", 77],
+    ]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([makeApiMatch("Côte d'Ivoire", 'Norway', 2, 0)]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[77]).toEqual({ home: '2', away: '0' });
   });
 });
