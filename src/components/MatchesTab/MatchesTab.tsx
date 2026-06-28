@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { MATCHES } from '../../data/matches';
+import { resolveAllKnockoutTeams } from '../../lib/groupStandings';
 import { Toolbar, type FilterMode } from './Toolbar';
 import { LiveRankingBar } from './LiveRankingBar';
 import { Legend } from './Legend';
@@ -10,6 +11,11 @@ import styles from './MatchesTab.module.css';
 export function MatchesTab() {
   const { state } = useApp();
   const [filter, setFilter] = useState<FilterMode>('all');
+
+  const knockoutTeams = useMemo(
+    () => resolveAllKnockoutTeams(MATCHES, state.results),
+    [state.results],
+  );
 
   const visible = MATCHES.filter(m => {
     const hasResult = !!state.results[m.id];
@@ -46,6 +52,8 @@ export function MatchesTab() {
               match={m}
               result={state.results[m.id]}
               players={state.players}
+              displayHome={knockoutTeams.get(m.id)?.home}
+              displayAway={knockoutTeams.get(m.id)?.away}
             />
           </div>
         );

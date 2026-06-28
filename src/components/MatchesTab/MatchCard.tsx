@@ -23,11 +23,14 @@ interface Props {
   match: Match;
   result?: Score;
   players: string[];
+  displayHome?: string;
+  displayAway?: string;
 }
 
-export function MatchCard({ match, result, players }: Props) {
+export function MatchCard({ match, result, players, displayHome, displayAway }: Props) {
   const locked = isLocked(match);
-  const isGroup = !!match.grp;
+  const homeLabel = displayHome ?? match.home;
+  const awayLabel = displayAway ?? match.away;
 
   const badge = result
     ? <span className={`${styles.badge} ${styles.badgeResult}`}>wynik</span>
@@ -47,8 +50,8 @@ export function MatchCard({ match, result, players }: Props) {
 
       <div className={styles.teams}>
         <div className={`${styles.team} ${styles.teamHome}`}>
-          <span className={styles.teamName}>{match.home}</span>
-          {isGroup && <FlagImg country={match.home} />}
+          <span className={styles.teamName}>{homeLabel}</span>
+          {COUNTRY_ISO[homeLabel] && <FlagImg country={homeLabel} />}
         </div>
 
         <div className={styles.scoreBlock}>
@@ -58,8 +61,8 @@ export function MatchCard({ match, result, players }: Props) {
         </div>
 
         <div className={`${styles.team} ${styles.teamAway}`}>
-          {isGroup && <FlagImg country={match.away} />}
-          <span className={styles.teamName}>{match.away}</span>
+          {COUNTRY_ISO[awayLabel] && <FlagImg country={awayLabel} />}
+          <span className={styles.teamName}>{awayLabel}</span>
         </div>
       </div>
 

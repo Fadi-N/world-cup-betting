@@ -88,10 +88,13 @@ function toPolish(name: string): string {
 }
 
 /**
- * Fetches all finished WC 2026 group-stage matches from football-data.org
- * and returns them keyed by our local match id.
+ * Fetches all finished WC 2026 matches from football-data.org and returns
+ * them keyed by our local match id. Pass knockoutLookup (resolved team names
+ * → match id) to also capture knockout-stage results.
  */
-export async function fetchWC2026Results(): Promise<Record<number, Score>> {
+export async function fetchWC2026Results(
+  knockoutLookup?: Map<string, number>,
+): Promise<Record<number, Score>> {
   if (!API_KEY) return {};
 
   const res = await fetch(
@@ -114,7 +117,10 @@ export async function fetchWC2026Results(): Promise<Record<number, Score>> {
 
     const plHome = toPolish(m.homeTeam.name);
     const plAway = toPolish(m.awayTeam.name);
-    const matchId = MATCH_LOOKUP.get(`${plHome}:${plAway}`);
+
+    const matchId =
+      MATCH_LOOKUP.get(`${plHome}:${plAway}`) ??
+      knockoutLookup?.get(`${plHome}:${plAway}`);
 
     if (matchId !== undefined) {
       results[matchId] = {
