@@ -66,6 +66,17 @@ export function MatchCard({ match, result, players, displayHome, displayAway }: 
         </div>
       </div>
 
+      {result && (result.etHome !== undefined || result.pkHome !== undefined) && (
+        <div className={styles.etNote}>
+          {result.etHome !== undefined && (
+            <span>Po dogrywce: {result.etHome}:{result.etAway}</span>
+          )}
+          {result.pkHome !== undefined && (
+            <span>{result.etHome !== undefined ? ' · ' : ''}Karne: {result.pkHome}:{result.pkAway}</span>
+          )}
+        </div>
+      )}
+
       {players.length > 0 && (
         <div className={styles.betsRow}>
           {players.map(p => (

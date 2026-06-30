@@ -104,6 +104,16 @@
 }
 .scoreSep { font-size: 13px; color: #9aa0aa; }
 
+/* ── Extra time / penalties note ───────────────────────────────── */
+.etNote {
+  text-align: center;
+  font-size: 10px;
+  color: #9aa0aa;
+  margin-top: -.2rem;
+  margin-bottom: .35rem;
+  letter-spacing: .02em;
+}
+
 /* ── Bet cells ──────────────────────────────────────────────────── */
 .betsRow {
   display: grid;

@@ -10,8 +10,12 @@ export interface Match {
 }
 
 export interface Score {
-  home: string;
-  away: string;
+  home: string;  // 90-minute result
+  away: string;  // 90-minute result
+  etHome?: string; // score after extra time (cumulative, only set if match went to ET)
+  etAway?: string;
+  pkHome?: string; // penalty kicks only (not cumulative)
+  pkAway?: string;
 }
 
 export interface AppState {

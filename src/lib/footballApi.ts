@@ -75,7 +75,10 @@ interface ApiMatch {
   homeTeam: { name: string };
   awayTeam: { name: string };
   score: {
+    duration: 'REGULAR' | 'EXTRA_TIME' | 'PENALTY_SHOOTOUT' | null;
     fullTime: { home: number | null; away: number | null } | null;
+    extraTime: { home: number | null; away: number | null } | null;
+    penalties: { home: number | null; away: number | null } | null;
   };
 }
 
@@ -112,8 +115,24 @@ export async function fetchWC2026Results(
   for (const m of data.matches) {
     const fullTime = m.score?.fullTime;
     if (!fullTime) continue;
-    const { home: homeGoals, away: awayGoals } = fullTime;
-    if (homeGoals === null || awayGoals === null) continue;
+    if (fullTime.home === null || fullTime.away === null) continue;
+
+    const duration = m.score?.duration;
+    const etGoals = m.score?.extraTime;
+    const pkGoals = m.score?.penalties;
+
+    // The API's fullTime is cumulative (90min + ET goals + penalty kicks).
+    // Subtract ET and PK goals to recover the 90-minute result (what players bet on).
+    let home90 = fullTime.home;
+    let away90 = fullTime.away;
+    if (duration === 'EXTRA_TIME' || duration === 'PENALTY_SHOOTOUT') {
+      home90 -= etGoals?.home ?? 0;
+      away90 -= etGoals?.away ?? 0;
+    }
+    if (duration === 'PENALTY_SHOOTOUT') {
+      home90 -= pkGoals?.home ?? 0;
+      away90 -= pkGoals?.away ?? 0;
+    }
 
     const plHome = toPolish(m.homeTeam.name);
     const plAway = toPolish(m.awayTeam.name);
@@ -123,10 +142,24 @@ export async function fetchWC2026Results(
       knockoutLookup?.get(`${plHome}:${plAway}`);
 
     if (matchId !== undefined) {
-      results[matchId] = {
-        home: String(homeGoals),
-        away: String(awayGoals),
+      const score: import('../context/types').Score = {
+        home: String(home90),
+        away: String(away90),
       };
+
+      // ET display = score after 120 min = fullTime minus penalty goals
+      if (duration === 'EXTRA_TIME' || duration === 'PENALTY_SHOOTOUT') {
+        const etFinalH = fullTime.home - (pkGoals?.home ?? 0);
+        const etFinalA = fullTime.away - (pkGoals?.away ?? 0);
+        score.etHome = String(etFinalH);
+        score.etAway = String(etFinalA);
+      }
+      if (duration === 'PENALTY_SHOOTOUT' && pkGoals?.home != null && pkGoals?.away != null) {
+        score.pkHome = String(pkGoals.home);
+        score.pkAway = String(pkGoals.away);
+      }
+
+      results[matchId] = score;
     }
   }
 

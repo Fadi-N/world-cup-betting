@@ -19,13 +19,23 @@ function makeApiMatch(
   homeGoals: number | null,
   awayGoals: number | null,
   status = 'FINISHED',
+  extra?: {
+    duration?: string;
+    extraTime?: { home: number; away: number };
+    penalties?: { home: number; away: number };
+  },
 ) {
   return {
     utcDate: '2026-06-15T21:00:00Z',
     status,
     homeTeam: { name: homeTeam },
     awayTeam: { name: awayTeam },
-    score: { fullTime: { home: homeGoals, away: awayGoals } },
+    score: {
+      duration: extra?.duration ?? 'REGULAR',
+      fullTime: { home: homeGoals, away: awayGoals },
+      extraTime: extra?.extraTime ?? null,
+      penalties: extra?.penalties ?? null,
+    },
   };
 }
 
@@ -237,5 +247,68 @@ describe('fetchWC2026Results – knockoutLookup', () => {
     );
     const result = await fetchWC2026Results(knockoutLookup);
     expect(result[77]).toEqual({ home: '2', away: '0' });
+  });
+});
+
+describe('fetchWC2026Results – extra time and penalties', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('extracts 90-min score for a PENALTY_SHOOTOUT match (API fullTime is cumulative)', async () => {
+    // Mirrors real data: Germany 4:5 Paraguay in UI, but 90-min was 1:1
+    // API fullTime=4:5 (1 reg + 0 ET + 3 PK : 1 reg + 0 ET + 4 PK), extraTime=0:0, penalties=3:4
+    const knockoutLookup = new Map<string, number>([['Niemcy:Paragwaj', 80]]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([
+        makeApiMatch('Germany', 'Paraguay', 4, 5, 'FINISHED', {
+          duration: 'PENALTY_SHOOTOUT',
+          extraTime: { home: 0, away: 0 },
+          penalties: { home: 3, away: 4 },
+        }),
+      ]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[80]).toMatchObject({ home: '1', away: '1' });
+    expect(result[80].etHome).toBe('1');
+    expect(result[80].etAway).toBe('1');
+    expect(result[80].pkHome).toBe('3');
+    expect(result[80].pkAway).toBe('4');
+  });
+
+  it('extracts 90-min score for an EXTRA_TIME match (no penalties)', async () => {
+    // Match goes to ET: 1:0 after 90min, someone scores in ET → fullTime 2:0, extraTime 1:0
+    const knockoutLookup = new Map<string, number>([['Holandia:Maroko', 81]]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([
+        makeApiMatch('Netherlands', 'Morocco', 2, 0, 'FINISHED', {
+          duration: 'EXTRA_TIME',
+          extraTime: { home: 1, away: 0 },
+          penalties: undefined,
+        }),
+      ]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[81]).toMatchObject({ home: '1', away: '0' });
+    expect(result[81].etHome).toBe('2');
+    expect(result[81].etAway).toBe('0');
+    expect(result[81].pkHome).toBeUndefined();
+  });
+
+  it('leaves REGULAR match score unchanged', async () => {
+    const knockoutLookup = new Map<string, number>([['RPA:Kanada', 73]]);
+    vi.mocked(fetch).mockResolvedValue(
+      makeApiResponse([
+        makeApiMatch('South Africa', 'Canada', 2, 1, 'FINISHED', { duration: 'REGULAR' }),
+      ]),
+    );
+    const result = await fetchWC2026Results(knockoutLookup);
+    expect(result[73]).toMatchObject({ home: '2', away: '1' });
+    expect(result[73].etHome).toBeUndefined();
+    expect(result[73].pkHome).toBeUndefined();
   });
 });
