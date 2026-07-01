@@ -40,6 +40,7 @@ const TEAM_EN_TO_PL: Record<string, string> = {
   'Spain':                     'Hiszpania',
   'Cape Verde':                'W. Z. Przylądka',
   'Cabo Verde':                'W. Z. Przylądka',
+  'Cape Verde Islands':        'W. Z. Przylądka',
   'Belgium':                   'Belgia',
   'Egypt':                     'Egipt',
   'Saudi Arabia':              'Arabia Saud.',
