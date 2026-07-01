@@ -29,6 +29,7 @@ const TEAM_EN_TO_PL: Record<string, string> = {
   'Türkiye':                   'Turcja',
   'Germany':                   'Niemcy',
   'Curaçao':                   'Curaçao',
+  'Curacao':                   'Curaçao',
   'Netherlands':               'Holandia',
   'Japan':                     'Japonia',
   "Côte d'Ivoire":             'W. K. Słoniowej',
