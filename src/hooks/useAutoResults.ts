@@ -40,7 +40,7 @@ export function useAutoResults() {
       dispatch({ type: 'SET_LAST_SYNCED', payload: Date.now() });
       console.info(`[auto-results] synced ${count} finished matches`);
       // Debug: check Cape Verde match IDs (13=ESP, 39=URU, 63=SAU)
-      console.debug('[auto-results] Cape Verde results:', { 13: results[13], 39: results[39], 63: results[63] });
+      console.info('[auto-results] Cape Verde results:', { 13: results[13], 39: results[39], 63: results[63] });
     } catch (err) {
       console.warn('[auto-results] fetch failed:', err);
     } finally {
