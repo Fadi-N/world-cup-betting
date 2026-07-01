@@ -143,6 +143,10 @@ export async function fetchWC2026Results(
       MATCH_LOOKUP.get(`${plHome}:${plAway}`) ??
       knockoutLookup?.get(`${plHome}:${plAway}`);
 
+    if (matchId === undefined) {
+      console.debug(`[footballApi] unmatched: "${m.homeTeam.name}" vs "${m.awayTeam.name}" → "${plHome}:${plAway}"`);
+    }
+
     if (matchId !== undefined) {
       const score: import('../context/types').Score = {
         home: String(home90),
