@@ -92,14 +92,25 @@ function resolveWinner(
   if (!r) return fallback ?? `W${matchId}`;
   const hg = parseGoals(r.home);
   const ag = parseGoals(r.away);
-  if (hg < 0 || ag < 0 || hg === ag) return fallback ?? `W${matchId}`;
+  if (hg < 0 || ag < 0) return fallback ?? `W${matchId}`;
 
   const m = matches.find(x => x.id === matchId);
   if (!m) return fallback ?? `W${matchId}`;
 
   const home = resolveInner(m.home, matches, results, standings, thirds);
   const away = resolveInner(m.away, matches, results, standings, thirds);
-  return hg > ag ? home : away;
+
+  if (hg !== ag) return hg > ag ? home : away;
+
+  // Draw after 90 min — winner decided by penalties
+  if (r.pkHome != null && r.pkAway != null) {
+    const ph = parseGoals(r.pkHome);
+    const pa = parseGoals(r.pkAway);
+    if (ph > pa) return home;
+    if (pa > ph) return away;
+  }
+
+  return fallback ?? `W${matchId}`;
 }
 
 function resolveLoser(
@@ -114,14 +125,25 @@ function resolveLoser(
   if (!r) return fallback;
   const hg = parseGoals(r.home);
   const ag = parseGoals(r.away);
-  if (hg < 0 || ag < 0 || hg === ag) return fallback;
+  if (hg < 0 || ag < 0) return fallback;
 
   const m = matches.find(x => x.id === matchId);
   if (!m) return fallback;
 
   const home = resolveInner(m.home, matches, results, standings, thirds);
   const away = resolveInner(m.away, matches, results, standings, thirds);
-  return hg > ag ? away : home;
+
+  if (hg !== ag) return hg > ag ? away : home;
+
+  // Draw after 90 min — loser is the one who lost on penalties
+  if (r.pkHome != null && r.pkAway != null) {
+    const ph = parseGoals(r.pkHome);
+    const pa = parseGoals(r.pkAway);
+    if (ph > pa) return away;
+    if (pa > ph) return home;
+  }
+
+  return fallback;
 }
 
 function resolveInner(
