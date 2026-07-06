@@ -102,7 +102,13 @@ function resolveWinner(
 
   if (hg !== ag) return hg > ag ? home : away;
 
-  // Draw after 90 min — winner decided by penalties
+  // Draw after 90 min — check extra time score, then penalties
+  if (r.etHome != null && r.etAway != null) {
+    const eh = parseGoals(r.etHome);
+    const ea = parseGoals(r.etAway);
+    if (eh > ea) return home;
+    if (ea > eh) return away;
+  }
   if (r.pkHome != null && r.pkAway != null) {
     const ph = parseGoals(r.pkHome);
     const pa = parseGoals(r.pkAway);
@@ -135,7 +141,13 @@ function resolveLoser(
 
   if (hg !== ag) return hg > ag ? away : home;
 
-  // Draw after 90 min — loser is the one who lost on penalties
+  // Draw after 90 min — check extra time score, then penalties
+  if (r.etHome != null && r.etAway != null) {
+    const eh = parseGoals(r.etHome);
+    const ea = parseGoals(r.etAway);
+    if (eh > ea) return away;
+    if (ea > eh) return home;
+  }
   if (r.pkHome != null && r.pkAway != null) {
     const ph = parseGoals(r.pkHome);
     const pa = parseGoals(r.pkAway);
